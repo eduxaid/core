@@ -6,6 +6,11 @@ Eduxa Core Backend System, built on top Django Framework
 * pip3.x
 * Django 3.1.x
 
+### Django Dependencies
+* django-environ
+* django-ckeditor
+* django-money
+
 ### Installation
 Will added later...
 
