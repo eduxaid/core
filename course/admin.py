@@ -5,10 +5,36 @@ Eduxa Course Admin
 """
 from django.contrib import admin
 
-from .models import Category, Course
+# Models
+from .models import *
+
+# Utils 
+from django.conf import settings
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+from itertools import chain
 
 # Category
-admin.site.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "status", "count_courses")
+
+    def count_courses(self, obj):
+        return "0"
+    count_courses.short_description = _("Courses")
+
+admin.site.register(Category, CategoryAdmin)
 
 # Course
-admin.site.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ("name", "status", "price", "category", "enrollments", "instructors")
+
+    def category(self, obj):
+        return list(obj.categories.all())
+    
+    def enrollments(self, obj):
+        return 0
+    
+    def instructors(self, obj):
+        return 'N/A'
+
+admin.site.register(Course, CourseAdmin)
