@@ -7,6 +7,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from ckeditor.fields import RichTextField
 
 # Category Status
 class CategoryStatus(models.TextChoices):
@@ -17,7 +18,7 @@ class Category(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     slug = models.SlugField(editable=False, unique=True)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextField(blank=True, null=True)
     status = models.CharField(
         max_length=20,
         choices=CategoryStatus.choices,
