@@ -10,6 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import environ
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env()
+
+import os
+
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +30,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')!a^8ph90mt**20x6x4unh6ad@(go!&&8z#)%q$=rsilx423=!'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
@@ -75,9 +85,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': env('DB_DATABASE'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+    },
 }
 
 
@@ -105,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env('TIMEZONE')
 
 USE_I18N = True
 
@@ -117,4 +131,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = env('STATIC_URL')
+
+APP_NAME=env('APP_NAME')
