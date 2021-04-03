@@ -9,9 +9,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from ckeditor.fields import RichTextField
 from djmoney.models.fields import MoneyField
+from django.contrib.auth.models import User
 
 # Category Status
-class CategoryStatus(models.TextChoices):
+class PublishingStatus(models.TextChoices):
     DRAFT = 'DRAFT', _('DRAFT'),
     PUBLISHED = 'PUBLISHED', _('PUBLISHED')
 
@@ -29,8 +30,8 @@ class Category(models.Model):
     description = RichTextField(blank=True, null=True)
     status = models.CharField(
         max_length=20,
-        choices=CategoryStatus.choices,
-        default=CategoryStatus.DRAFT
+        choices=PublishingStatus.choices,
+        default=PublishingStatus.DRAFT
     )
     parent = models.ForeignKey('Category', models.DO_NOTHING, verbose_name="Parent Category", null=True, blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
@@ -44,7 +45,7 @@ class Category(models.Model):
         return self.name
 
     class Meta:
-        db_table = 'eduxa_category'
+        db_table = 'eduxa_categories'
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
 
@@ -61,9 +62,11 @@ class Course(models.Model):
         choices=CourseStatus.choices,
         default=CourseStatus.DRAFT
     )
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
-    categories=models.ManyToManyField(Category)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    categories = models.ManyToManyField(Category)
+    instructors = models.ManyToManyField(User, related_name='eduxa_course_instructors')
+    enrollments = models.ManyToManyField(User, related_name='eduxa_course_enrollments')
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -73,6 +76,33 @@ class Course(models.Model):
         return self.name
 
     class Meta:
-        db_table = 'eduxa_course'
+        db_table = 'eduxa_courses'
         verbose_name = 'Course'
         verbose_name_plural = 'Courses'
+
+class Section(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(editable=False, unique=True)
+    excerpt = models.TextField(max_length=255, blank=True, null=True)
+    content = RichTextField(blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=PublishingStatus.choices,
+        default=PublishingStatus.DRAFT
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.title)
+        super(Section, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        db_table = 'eduxa_course_sections'
+        verbose_name = 'Course Section'
+        verbose_name_plural = 'Course Sections'
