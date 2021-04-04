@@ -5,6 +5,10 @@ Eduxa Course Admin
 """
 from django.contrib import admin
 
-from .models import Category
+from .models import Category, Course
 
+# Category
 admin.site.register(Category)
+
+# Course
+admin.site.register(Course)
